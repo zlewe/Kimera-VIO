@@ -4,7 +4,7 @@ FROM ubuntu:18.04
 MAINTAINER Antoni Rosinol "arosinol@mit.edu"
 
 # To avoid tzdata asking for geographic location...
-ENV DEBIAN_frontend noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 # Set the working directory to /root
 ENV DIRPATH /root
@@ -18,14 +18,14 @@ RUN apt-get update && apt-get install -y git cmake
 RUN apt-get update && apt-get install -y xvfb
 
 # Install GTSAM
-RUN apt-get update && apt-get install -y libboost-all-dev
-ADD https://api.github.com/repos/borglab/gtsam/git/refs/heads/master version.json
-RUN git clone https://github.com/borglab/gtsam.git
+RUN apt-get update && apt-get install -y libboost-all-dev libtbb-dev
+ADD https://api.github.com/repos/borglab/gtsam/git/refs/tags/4.1.1 version.json
+RUN git clone -b 4.1.1 https://github.com/borglab/gtsam.git
 RUN cd gtsam && \
     git fetch && \
     mkdir build && \
     cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DGTSAM_BUILD_TESTS=OFF -DGTSAM_BUILD_EXAMPLES_ALWAYS=OFF -DCMAKE_BUILD_TYPE=Release -DGTSAM_BUILD_UNSTABLE=ON -DGTSAM_TANGENT_PREINTEGRATION=OFF .. && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DGTSAM_BUILD_TESTS=OFF -DGTSAM_BUILD_EXAMPLES_ALWAYS=OFF -DCMAKE_BUILD_TYPE=Release -DGTSAM_USE_SYSTEM_EIGEN=OFF -DGTSAM_POSE3_EXPMAP=ON -DGTSAM_ROT3_EXPMAP=ON -DGTSAM_TANGENT_PREINTEGRATION=OFF .. && \
     make -j$(nproc) install
 
 # Install OpenCV for Ubuntu 18.04
@@ -89,7 +89,7 @@ RUN apt-get update && \
 RUN apt-get update && \
     add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update && \
-    apt-get install -y python3.5 python3.5-dev python-pip python3-pip python-tk python3-tk
+    apt-get install -y python3.5 python3.5-dev python-pip python3-pip python-tk python3-tk libffi-dev
 RUN python3.5 -m pip install PyQt5==5.14
 
 # Install evo-1 for evaluation
